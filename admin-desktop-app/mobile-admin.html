@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Noel Moreno Admin - Mobile</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px 20px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 24px;
+            margin-bottom: 5px;
+        }
+        
+        .header p {
+            opacity: 0.9;
+            font-size: 14px;
+        }
+        
+        .status {
+            padding: 20px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .status-indicator {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 10px;
+            border-radius: 10px;
+            margin-bottom: 10px;
+        }
+        
+        .status-online {
+            background: #e8f5e8;
+            color: #2e7d32;
+        }
+        
+        .status-offline {
+            background: #ffebee;
+            color: #c62828;
+        }
+        
+        .menu {
+            padding: 20px;
+        }
+        
+        .menu-item {
+            display: block;
+            width: 100%;
+            padding: 15px 20px;
+            margin-bottom: 10px;
+            background: #f8f9fa;
+            border: none;
+            border-radius: 12px;
+            text-align: left;
+            font-size: 16px;
+            color: #333;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .menu-item:hover {
+            background: #e9ecef;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        
+        .menu-item.primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        
+        .menu-item.primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3);
+        }
+        
+        .icon {
+            margin-right: 10px;
+            font-size: 18px;
+        }
+        
+        .footer {
+            padding: 20px;
+            text-align: center;
+            color: #666;
+            font-size: 12px;
+            border-top: 1px solid #eee;
+        }
+        
+        .quick-stats {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .stat {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+        }
+        
+        .stat-number {
+            font-size: 24px;
+            font-weight: bold;
+            color: #667eea;
+        }
+        
+        .stat-label {
+            font-size: 12px;
+            color: #666;
+            margin-top: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📊 Noel Moreno Admin</h1>
+            <p>Panel de Administración</p>
+        </div>
+        
+        <div class="status">
+            <div class="status-indicator" id="statusIndicator">
+                <span id="statusText">Verificando conexión...</span>
+            </div>
+            <div class="quick-stats">
+                <div class="stat">
+                    <div class="stat-number" id="messagesCount">-</div>
+                    <div class="stat-label">Mensajes</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-number" id="projectsCount">-</div>
+                    <div class="stat-label">Proyectos</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="menu">
+            <a href="http://localhost:5000/admin/" class="menu-item primary" target="_blank">
+                <span class="icon">🏠</span>
+                Panel Principal
+            </a>
+            
+            <a href="http://localhost:5000/admin/contactmessage/" class="menu-item" target="_blank">
+                <span class="icon">📧</span>
+                Mensajes de Contacto
+            </a>
+            
+            <a href="http://localhost:5000/admin/project/" class="menu-item" target="_blank">
+                <span class="icon">💼</span>
+                Proyectos
+            </a>
+            
+            <a href="http://localhost:5000/admin/testimonial/" class="menu-item" target="_blank">
+                <span class="icon">⭐</span>
+                Testimonios
+            </a>
+            
+            <a href="http://localhost:5000/admin/blogpost/" class="menu-item" target="_blank">
+                <span class="icon">📝</span>
+                Blog
+            </a>
+            
+            <a href="http://localhost:5000/" class="menu-item" target="_blank">
+                <span class="icon">🌐</span>
+                Ver Sitio Web
+            </a>
+        </div>
+        
+        <div class="footer">
+            <p>Usuario: admin | Contraseña: admin123</p>
+            <p>Desarrollado para Noel Moreno</p>
+        </div>
+    </div>
+
+    <script>
+        // Verificar estado del servidor
+        async function checkServerStatus() {
+            try {
+                const response = await fetch('http://localhost:5000/admin/');
+                if (response.ok) {
+                    document.getElementById('statusIndicator').className = 'status-indicator status-online';
+                    document.getElementById('statusText').textContent = '✅ Servidor conectado';
+                    await loadStats();
+                } else {
+                    throw new Error('Server error');
+                }
+            } catch (error) {
+                document.getElementById('statusIndicator').className = 'status-indicator status-offline';
+                document.getElementById('statusText').textContent = '❌ Servidor desconectado';
+            }
+        }
+        
+        // Cargar estadísticas básicas
+        async function loadStats() {
+            try {
+                // Aquí podrías hacer llamadas a tu API para obtener estadísticas
+                // Por ahora, mostramos datos de ejemplo
+                document.getElementById('messagesCount').textContent = '3';
+                document.getElementById('projectsCount').textContent = '5';
+            } catch (error) {
+                console.log('Error loading stats:', error);
+            }
+        }
+        
+        // Verificar estado al cargar y cada 30 segundos
+        checkServerStatus();
+        setInterval(checkServerStatus, 30000);
+        
+        // Añadir funcionalidad PWA
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('/sw.js')
+                .then(registration => console.log('SW registered'))
+                .catch(error => console.log('SW registration failed'));
+        }
+    </script>
+</body>
+</html>

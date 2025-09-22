@@ -1,0 +1,35 @@
+{
+  "name": "noel-moreno-website",
+  "version": "1.0.0",
+  "description": "Página web profesional de Noel Moreno - Soluciones Digitales para Pequeños Negocios",
+  "main": "index.html",
+  "scripts": {
+    "start": "npx live-server --port=3000 --open=/index.html",
+    "dev": "npx live-server --port=3000 --open=/index.html --watch=assets",
+    "build": "echo 'Build process not implemented yet'",
+    "lint": "echo 'Linting not implemented yet'",
+    "test": "echo 'Tests not implemented yet'"
+  },
+  "keywords": [
+    "website",
+    "business",
+    "digital-solutions",
+    "pos",
+    "inventory",
+    "reports",
+    "small-business"
+  ],
+  "author": "Noel Moreno",
+  "license": "MIT",
+  "devDependencies": {
+    "live-server": "^1.2.2"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/noelmoreno/website.git"
+  },
+  "bugs": {
+    "url": "https://github.com/noelmoreno/website/issues"
+  },
+  "homepage": "https://noelmoreno.com"
+}

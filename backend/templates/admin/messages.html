@@ -1,0 +1,182 @@
+{% extends "admin/base.html" %}
+
+{% block title %}Mensajes{% endblock %}
+{% block page_title %}Gestión de Mensajes{% endblock %}
+
+{% block content %}
+<!-- Filters -->
+<div class="card mb-4">
+    <div class="card-body">
+        <form method="GET" class="row g-3">
+            <div class="col-md-4">
+                <label for="read" class="form-label">Estado</label>
+                <select name="read" id="read" class="form-select">
+                    <option value="all" {% if current_filters.read == 'all' %}selected{% endif %}>Todos</option>
+                    <option value="unread" {% if current_filters.read == 'unread' %}selected{% endif %}>Sin leer</option>
+                    <option value="read" {% if current_filters.read == 'read' %}selected{% endif %}>Leídos</option>
+                </select>
+            </div>
+            <div class="col-md-4">
+                <label for="service" class="form-label">Servicio</label>
+                <select name="service" id="service" class="form-select">
+                    <option value="all" {% if current_filters.service == 'all' %}selected{% endif %}>Todos</option>
+                    {% for service in services %}
+                    <option value="{{ service }}" {% if current_filters.service == service %}selected{% endif %}>{{ service }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-4 d-flex align-items-end">
+                <button type="submit" class="btn btn-primary me-2">
+                    <i class="fas fa-filter me-2"></i>Filtrar
+                </button>
+                <a href="{{ url_for('admin_panel.messages') }}" class="btn btn-outline-secondary">
+                    <i class="fas fa-times me-2"></i>Limpiar
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Messages Table -->
+<div class="card">
+    <div class="card-header">
+        <h5 class="mb-0">
+            <i class="fas fa-envelope me-2"></i>
+            Mensajes de Contacto
+            <span class="badge bg-primary ms-2">{{ messages.total }} mensajes</span>
+        </h5>
+    </div>
+    <div class="card-body">
+        {% if messages.items %}
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Nombre</th>
+                            <th>Email</th>
+                            <th>Servicio</th>
+                            <th>Fecha</th>
+                            <th>Estado</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for message in messages.items %}
+                        <tr class="{% if not message.leido %}table-warning{% endif %}">
+                            <td>{{ message.id }}</td>
+                            <td>{{ message.nombre }}</td>
+                            <td>
+                                <a href="mailto:{{ message.email }}">{{ message.email }}</a>
+                            </td>
+                            <td>
+                                <span class="badge bg-primary">{{ message.servicio }}</span>
+                            </td>
+                            <td>{{ message.fecha.strftime('%d/%m/%Y %H:%M') }}</td>
+                            <td>
+                                {% if message.leido %}
+                                    <span class="badge bg-success">Leído</span>
+                                {% else %}
+                                    <span class="badge bg-warning">Sin leer</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <div class="btn-group" role="group">
+                                    <a href="{{ url_for('admin_panel.view_message', message_id=message.id) }}" 
+                                       class="btn btn-sm btn-outline-primary" title="Ver mensaje">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                    <button type="button" 
+                                            class="btn btn-sm btn-outline-danger" 
+                                            onclick="deleteMessage({{ message.id }})" 
+                                            title="Eliminar mensaje">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            
+            <!-- Pagination -->
+            {% if messages.pages > 1 %}
+            <nav aria-label="Paginación de mensajes">
+                <ul class="pagination justify-content-center">
+                    {% if messages.has_prev %}
+                        <li class="page-item">
+                            <a class="page-link" href="{{ url_for('admin_panel.messages', page=messages.prev_num, **request.args) }}">
+                                <i class="fas fa-chevron-left"></i>
+                            </a>
+                        </li>
+                    {% endif %}
+                    
+                    {% for page_num in messages.iter_pages() %}
+                        {% if page_num %}
+                            {% if page_num != messages.page %}
+                                <li class="page-item">
+                                    <a class="page-link" href="{{ url_for('admin_panel.messages', page=page_num, **request.args) }}">
+                                        {{ page_num }}
+                                    </a>
+                                </li>
+                            {% else %}
+                                <li class="page-item active">
+                                    <span class="page-link">{{ page_num }}</span>
+                                </li>
+                            {% endif %}
+                        {% else %}
+                            <li class="page-item disabled">
+                                <span class="page-link">...</span>
+                            </li>
+                        {% endif %}
+                    {% endfor %}
+                    
+                    {% if messages.has_next %}
+                        <li class="page-item">
+                            <a class="page-link" href="{{ url_for('admin_panel.messages', page=messages.next_num, **request.args) }}">
+                                <i class="fas fa-chevron-right"></i>
+                            </a>
+                        </li>
+                    {% endif %}
+                </ul>
+            </nav>
+            {% endif %}
+        {% else %}
+            <div class="text-center py-5">
+                <i class="fas fa-inbox fa-3x text-muted mb-3"></i>
+                <h5 class="text-muted">No hay mensajes</h5>
+                <p class="text-muted">No se encontraron mensajes con los filtros aplicados.</p>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    function deleteMessage(messageId) {
+        if (confirm('¿Estás seguro de que quieres eliminar este mensaje?')) {
+            fetch(`/admin/messages/${messageId}/delete`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    location.reload();
+                } else {
+                    alert('Error al eliminar el mensaje');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Error al eliminar el mensaje');
+            });
+        }
+    }
+</script>
+{% endblock %}

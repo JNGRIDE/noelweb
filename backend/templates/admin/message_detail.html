@@ -1,0 +1,209 @@
+{% extends "admin/base.html" %}
+
+{% block title %}Mensaje #{{ message.id }}{% endblock %}
+{% block page_title %}Detalle del Mensaje{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-lg-8">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="fas fa-envelope me-2"></i>
+                    Mensaje de {{ message.nombre }}
+                    {% if not message.leido %}
+                        <span class="badge bg-warning ms-2">Sin leer</span>
+                    {% else %}
+                        <span class="badge bg-success ms-2">Leído</span>
+                    {% endif %}
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <strong>Nombre:</strong>
+                        <p class="mb-0">{{ message.nombre }}</p>
+                    </div>
+                    <div class="col-md-6">
+                        <strong>Email:</strong>
+                        <p class="mb-0">
+                            <a href="mailto:{{ message.email }}">{{ message.email }}</a>
+                        </p>
+                    </div>
+                </div>
+                
+                {% if message.telefono %}
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <strong>Teléfono:</strong>
+                        <p class="mb-0">
+                            <a href="tel:{{ message.telefono }}">{{ message.telefono }}</a>
+                        </p>
+                    </div>
+                    <div class="col-md-6">
+                        <strong>Servicio:</strong>
+                        <p class="mb-0">
+                            <span class="badge bg-primary">{{ message.servicio }}</span>
+                        </p>
+                    </div>
+                </div>
+                {% else %}
+                <div class="row mb-3">
+                    <div class="col-md-12">
+                        <strong>Servicio:</strong>
+                        <p class="mb-0">
+                            <span class="badge bg-primary">{{ message.servicio }}</span>
+                        </p>
+                    </div>
+                </div>
+                {% endif %}
+                
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <strong>Fecha:</strong>
+                        <p class="mb-0">{{ message.fecha.strftime('%d/%m/%Y a las %H:%M') }}</p>
+                    </div>
+                    {% if message.ip_address %}
+                    <div class="col-md-6">
+                        <strong>IP:</strong>
+                        <p class="mb-0 text-muted">{{ message.ip_address }}</p>
+                    </div>
+                    {% endif %}
+                </div>
+                
+                <div class="mb-3">
+                    <strong>Mensaje:</strong>
+                    <div class="border rounded p-3 bg-light">
+                        {{ message.mensaje|replace('\n', '<br>')|safe }}
+                    </div>
+                </div>
+                
+                {% if message.respuesta %}
+                <div class="mb-3">
+                    <strong>Respuesta:</strong>
+                    <div class="border rounded p-3 bg-info bg-opacity-10">
+                        {{ message.respuesta|replace('\n', '<br>')|safe }}
+                    </div>
+                    {% if message.fecha_respuesta %}
+                    <small class="text-muted">
+                        Respondido el {{ message.fecha_respuesta.strftime('%d/%m/%Y a las %H:%M') }}
+                    </small>
+                    {% endif %}
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="fas fa-tools me-2"></i>
+                    Acciones
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="d-grid gap-2">
+                    <a href="mailto:{{ message.email }}?subject=Re: {{ message.servicio }}" 
+                       class="btn btn-primary">
+                        <i class="fas fa-reply me-2"></i>
+                        Responder por Email
+                    </a>
+                    
+                    {% if not message.leido %}
+                    <button type="button" class="btn btn-success" onclick="markAsRead({{ message.id }})">
+                        <i class="fas fa-check me-2"></i>
+                        Marcar como Leído
+                    </button>
+                    {% endif %}
+                    
+                    <a href="{{ url_for('admin_panel.messages') }}" class="btn btn-outline-secondary">
+                        <i class="fas fa-arrow-left me-2"></i>
+                        Volver a Mensajes
+                    </a>
+                    
+                    <button type="button" class="btn btn-outline-danger" onclick="deleteMessage({{ message.id }})">
+                        <i class="fas fa-trash me-2"></i>
+                        Eliminar Mensaje
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card mt-3">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="fas fa-info-circle me-2"></i>
+                    Información
+                </h5>
+            </div>
+            <div class="card-body">
+                <small class="text-muted">
+                    <strong>ID del mensaje:</strong> {{ message.id }}<br>
+                    <strong>Recibido:</strong> {{ message.fecha.strftime('%d/%m/%Y %H:%M') }}<br>
+                    {% if message.ip_address %}
+                    <strong>IP:</strong> {{ message.ip_address }}<br>
+                    {% endif %}
+                    <strong>Estado:</strong> 
+                    {% if message.leido %}
+                        Leído
+                    {% else %}
+                        Sin leer
+                    {% endif %}
+                </small>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    function markAsRead(messageId) {
+        fetch(`/api/admin/messages/${messageId}/mark-read`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                location.reload();
+            } else {
+                alert('Error al marcar como leído');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Error al marcar como leído');
+        });
+    }
+    
+    function deleteMessage(messageId) {
+        if (confirm('¿Estás seguro de que quieres eliminar este mensaje?')) {
+            fetch(`/admin/messages/${messageId}/delete`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    window.location.href = '{{ url_for("admin_panel.messages") }}';
+                } else {
+                    alert('Error al eliminar el mensaje');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Error al eliminar el mensaje');
+            });
+        }
+    }
+</script>
+{% endblock %}

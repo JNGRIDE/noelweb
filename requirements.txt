@@ -1,0 +1,31 @@
+# Dependencias para Noel Moreno Website
+# Instalar con: pip install -r requirements.txt
+
+# Framework web
+Flask==2.3.3
+Flask-SQLAlchemy==3.0.5
+
+# Autenticación y administración
+Flask-Login==0.6.3
+Flask-Admin==1.6.1
+
+# Seguridad
+Werkzeug==2.3.7
+
+# Utilidades
+python-dateutil==2.8.2
+
+# Desarrollo
+Flask-CORS==4.0.0
+
+# Testing (opcional)
+pytest==7.4.3
+pytest-cov==4.1.0
+
+# Producción (opcional)
+gunicorn==21.2.0
+
+# Desarrollo adicional (opcional)
+# flake8==6.1.0
+# black==23.9.1
+# mypy==1.6.1

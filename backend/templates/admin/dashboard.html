@@ -1,0 +1,207 @@
+{% extends "admin/base.html" %}
+
+{% block title %}Dashboard{% endblock %}
+{% block page_title %}Dashboard{% endblock %}
+
+{% block content %}
+<!-- Stats Cards -->
+<div class="stats-grid">
+    <div class="stat-card">
+        <div class="stat-icon">
+            <i class="fas fa-envelope"></i>
+        </div>
+        <div class="stat-number">{{ stats.total_messages }}</div>
+        <div class="stat-label">Total Mensajes</div>
+    </div>
+    
+    <div class="stat-card">
+        <div class="stat-icon">
+            <i class="fas fa-envelope-open"></i>
+        </div>
+        <div class="stat-number">{{ stats.unread_messages }}</div>
+        <div class="stat-label">Mensajes Sin Leer</div>
+    </div>
+    
+    <div class="stat-card">
+        <div class="stat-icon">
+            <i class="fas fa-project-diagram"></i>
+        </div>
+        <div class="stat-number">{{ stats.active_projects }}</div>
+        <div class="stat-label">Proyectos Activos</div>
+    </div>
+    
+    <div class="stat-card">
+        <div class="stat-icon">
+            <i class="fas fa-quote-left"></i>
+        </div>
+        <div class="stat-number">{{ stats.active_testimonials }}</div>
+        <div class="stat-label">Testimonios</div>
+    </div>
+    
+    <div class="stat-card">
+        <div class="stat-icon">
+            <i class="fas fa-blog"></i>
+        </div>
+        <div class="stat-number">{{ stats.published_posts }}</div>
+        <div class="stat-label">Posts Publicados</div>
+    </div>
+    
+    <div class="stat-card">
+        <div class="stat-icon">
+            <i class="fas fa-users"></i>
+        </div>
+        <div class="stat-number">{{ stats.total_users }}</div>
+        <div class="stat-label">Usuarios</div>
+    </div>
+</div>
+
+<!-- Recent Activity -->
+<div class="row">
+    <div class="col-lg-8">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="fas fa-clock me-2"></i>
+                    Mensajes Recientes
+                </h5>
+            </div>
+            <div class="card-body">
+                {% if recent_messages %}
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Nombre</th>
+                                    <th>Email</th>
+                                    <th>Servicio</th>
+                                    <th>Fecha</th>
+                                    <th>Estado</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for message in recent_messages %}
+                                <tr>
+                                    <td>{{ message.nombre }}</td>
+                                    <td>{{ message.email }}</td>
+                                    <td>
+                                        <span class="badge bg-primary">{{ message.servicio }}</span>
+                                    </td>
+                                    <td>{{ message.fecha.strftime('%d/%m/%Y %H:%M') }}</td>
+                                    <td>
+                                        {% if message.leido %}
+                                            <span class="badge bg-success">Leído</span>
+                                        {% else %}
+                                            <span class="badge bg-warning">Sin leer</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <a href="{{ url_for('admin_panel.view_message', message_id=message.id) }}" 
+                                           class="btn btn-sm btn-outline-primary">
+                                            <i class="fas fa-eye"></i>
+                                        </a>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="text-center mt-3">
+                        <a href="{{ url_for('admin_panel.messages') }}" class="btn btn-primary">
+                            Ver Todos los Mensajes
+                        </a>
+                    </div>
+                {% else %}
+                    <div class="text-center py-4">
+                        <i class="fas fa-inbox fa-3x text-muted mb-3"></i>
+                        <p class="text-muted">No hay mensajes recientes</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="fas fa-chart-line me-2"></i>
+                    Estadísticas del Mes
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span>Mensajes este mes:</span>
+                        <strong class="text-primary">{{ monthly_stats.messages_this_month }}</strong>
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span>Proyectos creados:</span>
+                        <strong class="text-success">{{ monthly_stats.projects_created }}</strong>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card mt-3">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="fas fa-rocket me-2"></i>
+                    Acciones Rápidas
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="d-grid gap-2">
+                    <a href="{{ url_for('admin_panel.messages') }}" class="btn btn-outline-primary">
+                        <i class="fas fa-envelope me-2"></i>
+                        Gestionar Mensajes
+                    </a>
+                    <a href="{{ url_for('admin_panel.projects') }}" class="btn btn-outline-success">
+                        <i class="fas fa-project-diagram me-2"></i>
+                        Gestionar Proyectos
+                    </a>
+                    <a href="{{ url_for('admin_panel.testimonials') }}" class="btn btn-outline-info">
+                        <i class="fas fa-quote-left me-2"></i>
+                        Gestionar Testimonios
+                    </a>
+                    <a href="{{ url_for('admin_panel.blog') }}" class="btn btn-outline-warning">
+                        <i class="fas fa-blog me-2"></i>
+                        Gestionar Blog
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // Auto-refresh stats every 30 seconds
+    setInterval(function() {
+            fetch('{{ url_for("admin_panel.api_stats") }}')
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Update stats numbers
+                    document.querySelectorAll('.stat-number').forEach((el, index) => {
+                        const stats = [
+                            data.stats.total_messages,
+                            data.stats.unread_messages,
+                            data.stats.active_projects,
+                            data.stats.active_testimonials,
+                            data.stats.published_posts,
+                            data.stats.total_users
+                        ];
+                        if (stats[index] !== undefined) {
+                            el.textContent = stats[index];
+                        }
+                    });
+                }
+            })
+            .catch(error => console.error('Error updating stats:', error));
+    }, 30000);
+</script>
+{% endblock %}
